@@ -1,0 +1,48 @@
+
+
+### **Guia de Orquestração e Agendamento no Databricks Workflows**
+
+#### **Visão Geral**
+
+Para garantir a atualização contínua e automatizada das tabelas na camada **Silver**, implementamos o agendamento (*Schedule*) do pipeline ETL utilizando o **Databricks Workflows**. Esse processo transforma scripts e notebooks interativos em tarefas automatizadas de nível de produção.
+
+---
+
+#### **Passo a Passo da Implementação**
+
+1. **Criação do Job de Orquestração**
+* No menu lateral do Databricks, acesse a aba **Jobs & Pipelines** e selecione a opção **Create Job**.
+* Defina o nome do Job (ex: `Job_Ingestao_Clientes_Silver`) para facilitar a governança do ambiente.
+
+
+2. **Configuração da Task (Tarefa)**
+* **Task Name**: `prep_clientes_silver`
+* **Type**: `Notebook` (ou `Python Script` caso utilize arquivos `.py`).
+* **Path**: Selecione o caminho do script/notebook de tratamento no Workspace.
+* **Compute**: Escolha um cluster ativo ou a opção *Serverless* para otimização de custos e tempo de inicialização.
+
+
+3. **Configuração do Agendamento (Schedules & Triggers)**
+Na barra lateral direita do Job, acesse a seção **Schedules & Triggers** para definir o gatilho de execução:
+* **Trigger Type**: Selecione `Scheduled` para execuções baseadas em tempo (batch).
+* **Schedule Type**: Escolha entre duas abordagens:
+* **Interval**: Define periodicidade simples (ex: rodar a cada 1 dia ou a cada 6 horas).
+* **Schedule (Cron)**: Define horários exatos de execução (ex: rodar diariamente às **02:00 AM**, ideal para processar a carga da madrugada sem impactar o uso dos analistas durante o dia).
+
+
+* **Status**: Mantenha marcado como `Active`.
+
+
+4. **Tratamento de Falhas e Observabilidade (Opcional e Boas Práticas)**
+* **Notifications**: Configure alertas de e-mail/webhook (Slack/Teams) para notificar automaticamente a equipe em caso de erro na execução.
+* **Retries**: Configure tentativas automáticas de reexecução (ex: máximo de 3 tentativas) em caso de falhas temporárias de conexão ou infraestrutura.
+
+
+
+---
+
+#### **Benefícios dessa Abordagem para a Engenharia de Dados**
+
+* **Automação End-to-End**: Elimina a necessidade de intervenção manual para execução de scripts.
+* **Governança e Linhagem**: O Databricks registra o histórico completo de execuções (*Runs*), duração, logs de erro e linhagem dos dados (*Data Lineage*).
+* **Eficiência Operacional**: Agendar cargas para horários de menor pico reduz custos de computação e garante que os dados estejam prontos antes do início do expediente do time de Analytics.
